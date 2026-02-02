@@ -1,0 +1,29 @@
+# =============================================================================
+# DBT PROFILES - KẾT NỐI SPARK THRIFT SERVER
+# =============================================================================
+# Profile này cấu hình dbt kết nối với Spark qua Thrift Server
+# Spark sẽ đọc/ghi dữ liệu Iceberg trên MinIO
+# =============================================================================
+
+fraud_detection:
+  target: dev
+  outputs:
+    dev:
+      type: spark
+      method: thrift
+      host: spark-iceberg
+      port: 10000
+      user: hive
+      schema: bronze
+      connect_retries: 5
+      connect_timeout: 120
+
+    prod:
+      type: spark
+      method: thrift
+      host: spark-iceberg
+      port: 10000
+      user: hive
+      schema: bronze
+      connect_retries: 5
+      connect_timeout: 120

@@ -1,0 +1,134 @@
+# =============================================================================
+# SILVER LAYER - SCHEMA & TESTS
+# =============================================================================
+# Định nghĩa schema, tests và documentation cho Silver Layer models
+# =============================================================================
+
+version: 2
+
+models:
+  - name: silver_transactions
+    description: |
+      **Bảng giao dịch đã được làm sạch và chuẩn hóa**
+
+      Nguồn: Bronze Layer (demo.bronze.transactions)
+
+      Các xử lý đã thực hiện:
+      - Chuẩn hóa data types
+      - Xử lý missing values với default values
+      - Feature engineering: transaction_hour, amount_log, is_high_amount
+      - Thêm metadata: _dbt_transformed_at, _dbt_run_id
+
+    columns:
+      - name: TransactionID
+        description: "ID duy nhất của giao dịch"
+        tests:
+          - unique
+          - not_null
+
+      - name: is_fraud
+        description: "Nhãn gian lận (1=fraud, 0=legitimate)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+
+      - name: transaction_amount
+        description: "Số tiền giao dịch (USD)"
+        tests:
+          - not_null
+
+      - name: card_brand
+        description: "Thương hiệu thẻ (visa, mastercard, discover, american express, unknown)"
+        tests:
+          - not_null
+
+      - name: card_category
+        description: "Loại thẻ (credit, debit, unknown)"
+        tests:
+          - not_null
+
+      - name: transaction_hour
+        description: "Giờ trong ngày (0-23)"
+        tests:
+          - not_null
+
+      - name: is_high_amount
+        description: "Cờ giao dịch giá trị cao (>500 USD)"
+        tests:
+          - accepted_values:
+              values: [0, 1]
+
+      # ===== MỚI: Features theo yêu cầu Team BA =====
+
+      - name: day_of_week
+        description: "Ngày trong tuần (0=Mon, 6=Sun)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1, 2, 3, 4, 5, 6]
+
+      - name: day_of_week_name
+        description: "Tên ngày trong tuần"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+      - name: amount_category
+        description: "Phân loại quy mô giao dịch"
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - "Micro (<=$50)"
+                - "Very Small ($50-100)"
+                - "Small ($100-500)"
+                - "Medium ($500-1K)"
+                - "Large ($1K-5K)"
+                - "Very Large (>$5K)"
+
+      - name: time_period
+        description: "Khung giờ: Night, Morning, Afternoon, Evening"
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - "Night (00-05)"
+                - "Morning (06-11)"
+                - "Afternoon (12-17)"
+                - "Evening (18-23)"
+
+  - name: silver_identity
+    description: |
+      **Bảng thông tin định danh thiết bị đã làm sạch**
+
+      Nguồn: Bronze Layer (demo.bronze.identity)
+
+      Các xử lý đã thực hiện:
+      - Chuẩn hóa DeviceType và DeviceInfo
+      - Trích xuất device_category và operating_system
+      - Thêm metadata tracking
+
+    columns:
+      - name: TransactionID
+        description: "ID giao dịch (foreign key)"
+        tests:
+          - not_null
+
+      - name: device_type
+        description: "Loại thiết bị gốc"
+        tests:
+          - not_null
+
+      - name: device_category
+        description: "Phân loại thiết bị: mobile, desktop, tablet, other"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["mobile", "desktop", "tablet", "other"]
+
+      - name: operating_system
+        description: "Hệ điều hành: windows, ios, android, macos, linux, other"
+        tests:
+          - not_null

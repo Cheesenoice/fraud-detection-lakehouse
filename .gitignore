@@ -1,0 +1,15 @@
+# Ignore data files
+notebooks/data/*.csv
+notebooks/data/*.zip
+
+# Ignore python cache
+__pycache__/
+*.pyc
+
+# Ignore dbt artifacts
+dbt_project/target/
+dbt_project/dbt_packages/
+dbt_project/logs/
+
+# Ignore .ipynb notebooks checkpoints
+.ipynb_checkpoints/

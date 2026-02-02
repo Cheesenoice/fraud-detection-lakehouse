@@ -1,0 +1,48 @@
+# =============================================================================
+# SILVER LAYER - SOURCES DEFINITION
+# =============================================================================
+# Định nghĩa các nguồn dữ liệu từ Bronze Layer
+# =============================================================================
+
+version: 2
+
+sources:
+  - name: bronze
+    description: "Bronze Layer - Dữ liệu thô từ IEEE-CIS Fraud Detection"
+    schema: bronze
+
+    tables:
+      - name: transactions
+        description: "Bảng giao dịch thẻ tín dụng thô"
+        columns:
+          - name: TransactionID
+            description: "ID duy nhất của giao dịch"
+            tests:
+              - unique
+              - not_null
+          - name: isFraud
+            description: "Nhãn gian lận (1=fraud, 0=legitimate)"
+          - name: TransactionAmt
+            description: "Số tiền giao dịch (USD)"
+          - name: TransactionDT
+            description: "Timedelta từ thời điểm tham chiếu"
+          - name: ProductCD
+            description: "Mã sản phẩm"
+          - name: card1
+            description: "Thông tin thẻ 1"
+          - name: card4
+            description: "Thương hiệu thẻ (visa, mastercard, etc)"
+          - name: card6
+            description: "Loại thẻ (credit, debit)"
+
+      - name: identity
+        description: "Bảng thông tin định danh thiết bị"
+        columns:
+          - name: TransactionID
+            description: "ID giao dịch (foreign key)"
+            tests:
+              - not_null
+          - name: DeviceType
+            description: "Loại thiết bị (mobile, desktop)"
+          - name: DeviceInfo
+            description: "Thông tin chi tiết thiết bị"

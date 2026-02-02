@@ -1,0 +1,150 @@
+version: "3.8"
+
+services:
+  # 1. KHO LƯU TRỮ (MinIO - Thay thế S3)
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: "admin"
+      MINIO_ROOT_PASSWORD: "password123"
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - lakehouse-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # 1.1. MINIO CLIENT - Tạo bucket tự động
+  minio-init:
+    image: minio/mc
+    container_name: minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 admin password123 &&
+      mc mb local/warehouse --ignore-existing &&
+      echo '✅ Bucket warehouse created successfully!'
+      "
+    networks:
+      - lakehouse-net
+
+  # 2. CATALOG SERVER (Iceberg REST - Core của hệ thống)
+  iceberg-rest:
+    image: tabulario/iceberg-rest:latest
+    container_name: iceberg-rest
+    ports:
+      - "8181:8181"
+    environment:
+      - AWS_ACCESS_KEY_ID=admin
+      - AWS_SECRET_ACCESS_KEY=password123
+      - AWS_REGION=us-east-1
+      - CATALOG_WAREHOUSE=s3://warehouse/
+      - CATALOG_IO__IMPL=org.apache.iceberg.aws.s3.S3FileIO
+      - CATALOG_S3_ENDPOINT=http://minio:9000
+      - CATALOG_S3_PATH__STYLE__ACCESS=true
+      - AWS_S3_PATH_STYLE_ACCESS=true
+      - CATALOG_S3_ACCESS__KEY__ID=admin
+      - CATALOG_S3_SECRET__ACCESS__KEY=password123
+    depends_on:
+      - minio
+    networks:
+      - lakehouse-net
+
+  # 3. MÁY TÍNH TOÁN (Spark Engine)
+  spark-iceberg:
+    image: tabulario/spark-iceberg:latest
+    container_name: spark-iceberg
+    depends_on:
+      - iceberg-rest
+      - minio
+    volumes:
+      - ./notebooks:/home/spark/notebooks
+    ports:
+      - "8888:8888"
+      - "8080:8080"
+      - "10000:10000"
+    environment:
+      - AWS_ACCESS_KEY_ID=admin
+      - AWS_SECRET_ACCESS_KEY=password123
+      - AWS_REGION=us-east-1
+      - AWS_S3_ENDPOINT=http://minio:9000
+      - AWS_S3_PATH_STYLE_ACCESS=true
+      - SPARK_SQL_CATALOG_DEMO_URI=http://iceberg-rest:8181
+    networks:
+      - lakehouse-net
+
+  # 4. DATABASE PHỤC VỤ (ClickHouse)
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse
+    ports:
+      - "8123:8123"
+      - "9009:9009"
+    environment:
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=clickhouse123
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+    depends_on:
+      - minio
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    networks:
+      - lakehouse-net
+
+  # 5. BIỂU ĐỒ (Superset)
+  superset:
+    image: apache/superset
+    container_name: superset
+    ports:
+      - "8088:8088"
+    environment:
+      SUPERSET_SECRET_KEY: "your-secret-key-here"
+    command: >
+      sh -c "
+      pip install clickhouse-connect && 
+      superset fab create-admin --username admin --firstname Superset --lastname Admin --email admin@superset.com --password admin && 
+      superset db upgrade && 
+      superset init && 
+      /usr/bin/run-server.sh"
+    networks:
+      - lakehouse-net
+
+  # 6. DBT - DATA BUILD TOOL (Transformation Layer - BẮT BUỘC)
+  dbt:
+    image: ghcr.io/dbt-labs/dbt-spark:1.7.1
+    container_name: dbt
+    depends_on:
+      - spark-iceberg
+      - iceberg-rest
+      - minio
+    volumes:
+      - ./dbt_project:/usr/app
+      - ./dbt_project/profiles.yml:/root/.dbt/profiles.yml
+    working_dir: /usr/app
+    environment:
+      - DBT_PROFILES_DIR=/root/.dbt
+      - AWS_ACCESS_KEY_ID=admin
+      - AWS_SECRET_ACCESS_KEY=password123
+      - AWS_REGION=us-east-1
+    entrypoint: ["tail", "-f", "/dev/null"]
+    networks:
+      - lakehouse-net
+
+networks:
+  lakehouse-net:
+    driver: bridge
+
+volumes:
+  minio-data:

@@ -1,0 +1,45 @@
+liệt kê qua nhá:
+
+# *business insight*: tìm bọn fraud để cho cút
+-> các câu hỏi đặt ra: tỉ lệ fraud hiện tại, ở đâu, khi nào, giao dịch là bnhieu, dùng thẻ nào.
+
+# *quá trình clean* (xử lý 2 file train_transaction và train_identity riêng lẻ không merge)
+
+# *-B1:* tối ưu hoá ram: reduce_mem_usage
+
+# *-B2:* 
+thay vì nạp full data rồi phải xoá mấy trăm cột thì t chọn việc CHỈ NẠP NHỮNG CỘT mình muốn 
+
+transaction: nạp 6 cột
+identity: nạp 3 cột
+
+# *-B3:* xử lý missing value
+- bọn numeric thì dùng median vì có khá nhiều outliers (giá trị ngoại lai - ví dụ: phạm vi bình thường là 1-50 nhưng tự nhiên xuất hiện mấy thằng 70-80, nên nếu dùng mean thì mấy thằng 70-80 sẽ làm nhiễu kết quả ấy)
+
+- trong các biến Numeric của Transaction có 1 var (biến) ngoại lệ là Addr1, mặc dù cột data này toàn số nhưng bản chất nó là các mã vùng (chắc vậy) hoặc nó là các địa chỉ đã được mã hoá dạng số để bảo vệ thông tin nên dùng mode chứ không dùng median (kiểu median là lấy số ở giữa, nếu lượng dữ liệu nhập vào là chẵn thì nó sẽ lấy 2 số ở giữa cộng vào chia đôi, thế thì tạo mẹ ra mã vùng mới mất...)
+
+- bọn character: chỗ nào thiếu thì điền "unknown" vào
+
+# *-B4:*
+Với data *Transaction* t có tạo thêm feature:
+
+- Time: như hôm trc t bảo thì nó đang tính bằng giây từ ngày gốc nên tạo thêm 1 cột tính ra thời gian cụ thể
+
+- cột TransactionAmt là cột đưa giá trị giao dịch (kiểu giao dịch 1000 đô hay bnhieu tiền): t dùng logarit transform vì dữ liệu bị lệch phân phối sang phải và range của cột chạy từ 1 đô - 30k đô thì khi vẽ nó sẽ bị hẹp (mng hiểu không kiểu vẽ đồ thị 1-10 trên giấy A4 thì nhìn nó rộng thoáng còn vẽ từ 1-30k nma vẫn với cái A4 đấy nó bị chi chít điểm ý ạ hjc)
+
+- tiếp theo t xoá luôn cột TransactionDT (cái cột mà tính bằng giây kể từ thời điểm gốc) và TransactionAmt (số tiền)
+
+# CÁI T MÚN NHỜ SQL LÀM TRC KHI VẼ
+
+(t hem làm vì nó không cần thiết, nó chỉ cần để vẽ thui ý)
+
+- chuyển 1 số biến từ dạng Numeric về dạng Categorical (kiểu biến Time chẳng hạn: máy đang hiểu là biến liên tục từ 0-23 thôi chứ nó không hiểu đấy là *23 khung giờ* trong 1 ngày ý.
+
+hoặc phần Addr1, vì cái biến này đã được mã hoá nên thành dạng số nên máy cũng đang hiểu nó là số chứ không phải biến Categorical (phân loại) + đổi về định dạng Mã code vùng cũng được
+
+- Đối với biến về giao dịch tiền thì mình nên chia khoảng:
+Đặt 1-100 đô: "very small scale"
+100-1000: "small scale"
+...
+20000-30000: "large scale"
+

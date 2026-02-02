@@ -1,0 +1,59 @@
+# =============================================================================
+# DBT PROJECT CONFIGURATION - FRAUD DETECTION LAKEHOUSE
+# =============================================================================
+# Công nghệ: dbt-spark với Apache Iceberg trên MinIO
+# Mô hình: Medallion Architecture (Bronze → Silver → Gold)
+# =============================================================================
+
+name: "fraud_detection_lakehouse"
+version: "1.0.0"
+config-version: 2
+
+# Thư mục profiles
+profile: "fraud_detection"
+
+# Thư mục source code
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+# Thư mục target (build artifacts)
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# =============================================================================
+# CẤU HÌNH MODELS THEO MEDALLION ARCHITECTURE
+# =============================================================================
+models:
+  fraud_detection_lakehouse:
+    # SILVER LAYER - Dữ liệu đã làm sạch
+    silver:
+      +materialized: table
+      +schema: silver
+      +tags: ["silver", "cleaned"]
+      +description: "Silver Layer - Dữ liệu đã được làm sạch và chuẩn hóa"
+
+    # GOLD LAYER - Dữ liệu tổng hợp cho báo cáo
+    gold:
+      +materialized: table
+      +schema: gold
+      +tags: ["gold", "aggregated", "reporting"]
+      +description: "Gold Layer - Dữ liệu tổng hợp phục vụ báo cáo và analytics"
+
+# =============================================================================
+# BIẾN TOÀN CỤC
+# =============================================================================
+vars:
+  # Ngưỡng phân loại giao dịch giá trị cao
+  high_amount_threshold: 500
+
+  # Số ngày giữ lại dữ liệu
+  data_retention_days: 365
+
+  # Tên catalog Iceberg
+  iceberg_catalog: "demo"

@@ -1,0 +1,217 @@
+# =============================================================================
+# GOLD LAYER - SCHEMA & TESTS
+# =============================================================================
+# Định nghĩa schema, tests và documentation cho Gold Layer models
+# =============================================================================
+
+version: 2
+
+models:
+  - name: fraud_by_card_type
+    description: |
+      **Thống kê gian lận theo loại thẻ và thương hiệu**
+
+      Bảng này tổng hợp số liệu gian lận theo từng cặp (card_brand, card_category)
+      để phục vụ báo cáo và dashboard.
+
+      **Use cases:**
+      - Pie chart: Phân bố gian lận theo loại thẻ
+      - Bar chart: So sánh tỷ lệ fraud giữa các loại thẻ
+
+    columns:
+      - name: card_brand
+        description: "Thương hiệu thẻ"
+        tests:
+          - not_null
+
+      - name: card_category
+        description: "Loại thẻ (credit/debit)"
+        tests:
+          - not_null
+
+      - name: fraud_rate_pct
+        description: "Tỷ lệ gian lận (%)"
+        tests:
+          - not_null
+
+  - name: hourly_fraud_analysis
+    description: |
+      **Phân tích xu hướng gian lận theo giờ trong ngày**
+
+      Phát hiện các khung giờ có tỷ lệ gian lận cao để 
+      tăng cường giám sát và phòng ngừa.
+
+      **Use cases:**
+      - Line chart: Xu hướng fraud theo giờ
+      - Heatmap: Pattern gian lận
+
+    columns:
+      - name: hour_of_day
+        description: "Giờ trong ngày (0-23)"
+        tests:
+          - not_null
+
+      - name: time_period
+        description: "Khung giờ: Night, Morning, Afternoon, Evening"
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                [
+                  "Night (00-05)",
+                  "Morning (06-11)",
+                  "Afternoon (12-17)",
+                  "Evening (18-23)",
+                ]
+
+  - name: fraud_by_product
+    description: |
+      **Thống kê gian lận theo mã sản phẩm**
+
+      Xác định các loại sản phẩm có rủi ro gian lận cao.
+
+    columns:
+      - name: product_code
+        description: "Mã sản phẩm (W, C, S, R, H)"
+        tests:
+          - not_null
+          - unique
+
+      - name: fraud_rate_pct
+        description: "Tỷ lệ gian lận cho sản phẩm này"
+
+  - name: kpi_summary
+    description: |
+      **Bảng tổng hợp KPI chính**
+
+      Một dòng duy nhất chứa tất cả các chỉ số KPI quan trọng
+      cho Fraud Detection Dashboard.
+
+      **KPIs included:**
+      - Total transactions
+      - Fraud rate
+      - Total fraud amount
+      - Average transaction amounts
+
+    columns:
+      - name: total_transactions
+        description: "Tổng số giao dịch trong hệ thống"
+        tests:
+          - not_null
+
+      - name: fraud_rate_pct
+        description: "Tỷ lệ gian lận tổng thể (%)"
+        tests:
+          - not_null
+
+  - name: high_risk_transactions
+    description: |
+      **Danh sách giao dịch có nguy cơ gian lận cao**
+
+      Các giao dịch được đánh giá dựa trên nhiều yếu tố rủi ro:
+      - Giá trị giao dịch cao
+      - Thời gian giao dịch bất thường
+      - Email domain không khớp
+      - Loại sản phẩm rủi ro
+
+      **Risk Levels:**
+      - Critical: risk_score >= 5
+      - High: risk_score >= 3
+      - Medium: risk_score >= 2
+
+    columns:
+      - name: TransactionID
+        description: "ID giao dịch"
+        tests:
+          - not_null
+
+      - name: risk_score
+        description: "Điểm rủi ro (0-7+)"
+        tests:
+          - not_null
+
+      - name: risk_level
+        description: "Mức độ rủi ro: Critical, High, Medium"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["Critical", "High", "Medium", "Low"]
+
+  - name: daily_transaction_summary
+    description: |
+      **Tổng hợp giao dịch theo ngày**
+
+      Phục vụ phân tích Time Series và xu hướng dài hạn.
+
+    columns:
+      - name: transaction_day
+        description: "Ngày (số ngày từ epoch)"
+        tests:
+          - not_null
+
+  # ===== MỚI: Models theo yêu cầu Team BA =====
+
+  - name: fraud_by_day_of_week
+    description: |
+      **Phân tích gian lận theo ngày trong tuần**
+
+      Trả lời câu hỏi: "Kẻ gian thường hoạt động vào ngày nào trong tuần?"
+
+      **Use cases:**
+      - Bar chart: So sánh fraud rate giữa các ngày
+      - Heatmap: Pattern kết hợp với giờ
+
+    columns:
+      - name: day_of_week
+        description: "Ngày trong tuần (0=Mon, 6=Sun)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1, 2, 3, 4, 5, 6]
+
+      - name: day_of_week_name
+        description: "Tên ngày trong tuần"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+      - name: fraud_rate_pct
+        description: "Tỷ lệ gian lận (%)"
+        tests:
+          - not_null
+
+  - name: fraud_by_amount_category
+    description: |
+      **Phân tích gian lận theo quy mô số tiền**
+
+      Trả lời câu hỏi: "Fraud tập trung ở giao dịch nhỏ (thử thẻ) hay lớn (rút ruột)?"
+
+      **Categories:**
+      - Micro: <= $50
+      - Very Small: $50-100
+      - Small: $100-500
+      - Medium: $500-1K
+      - Large: $1K-5K
+      - Very Large: > $5K
+
+    columns:
+      - name: amount_category
+        description: "Phân loại quy mô giao dịch"
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              values:
+                - "Micro (<=$50)"
+                - "Very Small ($50-100)"
+                - "Small ($100-500)"
+                - "Medium ($500-1K)"
+                - "Large ($1K-5K)"
+                - "Very Large (>$5K)"
+
+      - name: fraud_rate_pct
+        description: "Tỷ lệ gian lận trong category (%)"
+        tests:
+          - not_null
+          - unique

@@ -1,0 +1,242 @@
+﻿IEEE-CIS
+Bộ dữ liệu kinh điển trong ngành
+-> Giải thích đủ các variables:
+PRIMARY KEY: TRANSACTION_ID
+
+
+BẢNG 1: DỮ LIỆU GIAO DỊCH (TRANSACTION FILE)
+Đây là file chính, chứa thông tin về dòng tiền.
+Nhóm Biến
+	Variable
+	Context
+	Đích đến
+	isFraud
+	Mục tiêu dự đoán:[a] 1 = Gian lận, 0 = Sạch.
+	Thời gian
+	TransactionDT
+	Khoảng thời gian: Số giây tính từ một mốc quá khứ (không phải ngày giờ thực).
+	Tiền tệ
+	TransactionAmt
+	Giá trị giao dịch: Số tiền được thanh toán.
+	Sản phẩm
+	ProductCD
+	Mã sản phẩm: Loại hàng hóa/dịch vụ (W, C, R, H...).
+	Thẻ
+	card1 - card6
+	Thông tin thẻ: L[b]oại thẻ (Credit/Debit), Hạng thẻ, Ngân hàng phát hành.
+	Địa chỉ
+	addr1, addr2
+	Khu vực: Vùng thanh toán và Vùng nhận hóa đơn.
+	Email
+	P_emaildomain
+
+
+R_emaildomain
+	Người mua & Người nhận[c]: Email của 2 bên.
+	Tần suất
+	C1 - C14
+	Velocity (Tốc độ): Đếm số lần xuất hiện của thẻ/IP trong khoảng thời gian ngắn.
+	Độ trễ
+	D1 - D15
+	Recency (Độ mới): Số ngày kể từ lần giao dịch trước.
+	Xác thực
+	M1 - M9
+	Match Check: Kết quả so khớp tên, địa chỉ, mã bưu chính (AVS).
+	Ẩn danh
+	V1 - V339
+	Vesta Features: Các chỉ số ngầm về hành vi, xếp hạng rủi ro của Vesta.
+	________________
+
+
+BẢNG 2: DỮ LIỆU ĐỊNH DANH (IDENTITY FILE)
+Đây là file bổ trợ, chứa thông tin kỹ thuật về thiết bị (Device Fingerprint).
+Nhóm Biến
+	Tên Biến (Variable)
+	Ý nghĩa Business (Business Context)
+	Gợi ý xử lý cho Team IT (Action)
+	Khóa nối
+	TransactionID
+	Mã giao dịch: Dùng để nối với bảng Transaction.
+	Dùng làm khóa chính (Primary Key) để JOIN 2 bảng.
+	Thiết bị
+	DeviceType
+	Loại máy: Mobile (Điện thoại) hay Desktop (Máy tính).
+	Thống kê tỷ lệ gian lận trên Mobile vs Desktop.
+	Thông tin máy
+	DeviceInfo
+	Tên thiết bị: Ví dụ "Samsung SM-G9600", "iOS Device".
+	Chuẩn hóa tên (ví dụ gộp tất cả Samsung lại). Chú ý các thiết bị đời quá cũ.
+	Kỹ thuật số
+	id_01 - id_38
+	Vân tay thiết bị: Độ phân giải màn hình, IP, Proxy, Trình duyệt...
+	id_30 thường là Hệ điều hành (OS), id_31 là Trình duyệt. Cần làm sạch kỹ (ví dụ: "Win 10" và "Windows 10" là một).
+	
+
+EDA brief
+Business Objective
+The main business objective of finding fraud transactions can be following:
+1. If a fraud transaction is found out, the company should immediately block that card.
+2. We should be able to predict the probability of fraud transaction
+3. We should not predict fraud transactions as nonfraud. Also the vice versa. So precision and recall should be taken care of.
+
+
+CODE: IEEE.ipynb
+
+
+1. Mục tiêu chiến lược (Business Objectives)
+Dự án tập trung vào việc nhận diện hành vi gian lận tài chính. Các câu hỏi nghiên cứu chủ đạo bao gồm:
+* Chân dung gian lận: Tỷ lệ gian lận theo loại thiết bị, mã vùng và mạng lưới thanh toán.
+* Quy luật thời gian: Xác định các khung giờ nhạy cảm thường phát sinh giao dịch bất thường.
+* Phân khúc rủi ro: Đánh giá mức độ gian lận dựa trên quy mô giao dịch (số tiền).
+2. Phạm vi dữ liệu (Data Scope)
+Tôi đã tiến hành lọc dữ liệu theo danh sách ưu tiên (White-list) nhằm tối ưu hiệu suất xử lý:
+* Bảng Transaction (6 đặc trưng): TransactionID, isFraud, TransactionDT, TransactionAmt, card4, addr1.
+* Bảng Identity (2 đặc trưng): TransactionID, DeviceType.
+3. Quy trình kỹ thuật đã thực hiện
+A. Tối ưu hóa hệ thống
+* Thực hiện thuật toán nén dữ liệu (reduce_mem_usage) và chỉ nạp các cột thuộc White-list để đảm bảo hiệu suất RAM, phục vụ xử lý Big Data.
+B. Xử lý giá trị khuyết thiếu (Imputation)
+* Biến định lượng: Sử dụng Số trung vị (Median) để triệt tiêu ảnh hưởng tiêu cực của các giá trị ngoại lai (Outliers).
+* Biến mã vùng (addr1): Sử dụng Yếu vị (Mode) để bảo toàn tính logic của các địa danh mã hóa.
+* Biến phân loại: Gán nhãn "Unknown" để theo dõi sự thiếu hụt thông tin có chủ đích.
+C. Biến đổi đặc trưng (Feature Engineering)
+* Ổn định hóa biến: Áp dụng Log Transformation cho TransactionAmt để chuẩn hóa phân phối dữ liệu vốn bị lệch phải.
+* Tái cấu trúc thời gian: Trích xuất đặc trưng Giờ trong ngày (0-23h) và ngày trong tuần (Thứ 2 - Chủ nhật) từ TransactionDT.
+
+
+
+
+
+
+report
+I. BỐI CẢNH VÀ MỤC TIÊU KINH DOANH (BUSINESS INSIGHT)
+Trước khi đi vào kỹ thuật, quy trình được định hướng bởi mục tiêu cốt lõi: Tối ưu hóa quản trị rủi ro và bảo vệ tài sản hệ thống.
+* Mục tiêu chiến lược: Xác định và loại bỏ các thực thể gian lận (Fraud) nhằm giảm thiểu tổn thất tài chính và bảo vệ uy tín của tổ chức tài chính.
+* Các câu hỏi phân tích trọng tâm:
+   * Tỷ lệ gian lận: Mức độ xâm nhập của gian lận trong tổng lượng giao dịch hiện tại là bao nhiêu?
+   * Đặc điểm định danh: Gian lận thường phát sinh từ các loại thẻ nào (card4) và mã vùng nào (addr1)?
+   * Hành vi thời gian: Kẻ gian thường hoạt động vào khung giờ cao điểm hay khung giờ thấp điểm (giờ ngủ) để né tránh sự giám sát?
+   * Chân dung thiết bị: Có sự khác biệt về tỷ lệ gian lận giữa các thiết bị di động (Mobile) và máy tính để bàn (Desktop) hay không?
+   * Quy mô giao dịch: Các giao dịch gian lận thường tập trung ở phân khúc giá trị nhỏ (thử nghiệm thẻ) hay giá trị lớn (chiếm đoạt tài sản)?
+
+
+II. DANH MỤC DỮ LIỆU ĐẶC TRƯNG (DATA DICTIONARY)
+Dữ liệu được trích xuất dựa trên "Danh sách ưu tiên" (White-list) để tập trung vào các yếu tố có khả năng giải thích hành vi cao nhất.
+1. Bảng dữ liệu giao dịch (Transaction Data)
+Tên biến
+	Định dạng
+	Mô tả kinh doanh
+	TransactionID
+	Integer
+	Mã định danh giao dịch (Khóa chính).
+	isFraud
+	Binary
+	Trạng thái gian lận (0: Hợp lệ; 1: Gian lận).
+	TransactionDT
+	Numeric
+	Thời gian giao dịch tích lũy (giây).
+	TransactionAmt
+	Float
+	Giá trị giao dịch tài chính.
+	card4
+	String
+	Mạng lưới thanh toán (Visa, Mastercard, ...).
+	addr1
+	Numeric
+	Mã vùng thanh toán đã được mã hóa.
+	2. Bảng dữ liệu định danh (Identity Data)
+
+
+Tên biến
+	Định dạng
+	Mô tả kinh doanh
+	TransactionID
+	Integer
+	Mã định danh dùng để liên kết bảng (Khóa ngoại).
+	DeviceType
+	Categorical
+	Loại nền tảng thực hiện giao dịch (Mobile/Desktop).
+	
+
+III. PHƯƠNG PHÁP LUẬN TRONG LÀM SẠCH VÀ TIỀN XỬ LÝ DỮ LIỆU
+Quy trình làm sạch được thực hiện nghiêm ngặt nhằm đảm bảo tính khách quan cho các giả thuyết kinh doanh ở Mục I.
+1. Quản trị hiệu suất hệ thống
+* Tối ưu hóa RAM: Sử dụng thuật toán hạ cấp kiểu dữ liệu (reduce_mem_usage) và chiến lược chỉ nạp các biến số quan trọng (White-list) để đảm bảo tốc độ xử lý dữ liệu lớn mà không gây tràn bộ nhớ.
+2. Xử lý giá trị khuyết thiếu (Missing Values)
+* Biến số định lượng: Áp dụng Số trung vị (Median) để thay thế các giá trị khuyết thiếu nhằm hạn chế sự ảnh hưởng của các giá trị ngoại lai (Outliers) vốn rất phổ biến trong giao dịch tài chính.
+* Biến mã hóa vùng (addr1): Sử dụng Yếu vị (Mode) vì đây là biến định danh. Việc lấy trung bình mã vùng là không có ý nghĩa thực tế.
+* Biến định tính: Gán nhãn "Unknown" để bảo toàn mẫu dữ liệu và phục vụ phân tích sự thiếu hụt thông tin.
+
+
+IV. KỸ THUẬT BIẾN ĐỔI VÀ TRỰC QUAN HÓA (FEATURE ENGINEERING)
+Để chuyển đổi dữ liệu thô thành các thông tin có thể diễn giải được (Insights), hai kỹ thuật then chốt đã được áp dụng:
+1. Chuẩn hóa giá trị giao dịch (Log Transformation):
+   * Áp dụng hàm $log$ cho TransactionAmt để xử lý sự chênh lệch quá lớn giữa các giao dịch ($1$ - $30,000$ USD).
+   * Tác động: Giúp biểu đồ phân phối trở nên cân đối, dễ dàng nhận diện các điểm bất thường.
+2. Tái cấu trúc biến thời gian:
+   * Trích xuất Khung giờ trong ngày (Hour of Day) từ dữ liệu giây thô.
+   * Tác động: Trực quan hóa được "đỉnh điểm" của gian lận theo thời gian thực.
+
+
+V. KẾT LUẬN VÀ HƯỚNG PHÁP TRIỂN
+Quy trình tiền xử lý đã thiết lập một nền tảng dữ liệu sạch, tinh gọn và bám sát mục tiêu kinh doanh. Việc tập trung vào các đặc trưng cốt lõi (Thời gian, Địa điểm, Thiết bị, Giá trị) cho phép các bước phân tích khám phá (EDA) tiếp theo tập trung vào việc phác họa chân dung kẻ gian một cách sắc nét nhất.
+
+
+next step
+Lộ trình tiếp theo (Moving to Local Infrastructure)
+1. Thiết lập Docker: Chạy docker-compose.yml để khởi động MinIO, Spark, và ClickHouse.
+2. Ingestion & Bronze: Đưa các file Parquet này lên MinIO.
+3. Iceberg Integration: Sử dụng Spark để đăng ký các file này dưới dạng bảng Apache Iceberg (Tầng Silver thực thụ trong Lakehouse).
+4. Serving & Visualization: Cấu hình ClickHouse Iceberg Engine để truy vấn trực tiếp từ MinIO (Zero-Copy Architecture) và vẽ Dashboard trên Superset.
+
+
+business insight
+The BIG BUSINESS INSIGHT:
+"Xây dựng lá chắn chủ động: Nhận diện chân dung giao dịch rủi ro cao để tối ưu hóa nguồn lực bảo mật và giảm thiểu thiệt hại tài chính."
+Mục tiêu cuối cùng là giúp doanh nghiệp biết chính xác Cái gì, Khi nào, Ở đâu và Như thế nào thì gian lận xảy ra để ngăn chặn thay vì chỉ đi giải quyết hậu quả.
+KIỂU WHEN, WHERE, WHAT, WHY
+STT
+	Câu hỏi nghiệp vụ (Chart Question)
+	Biểu đồ (Visual)
+	Vai trò trong Big Insight
+	Var
+	1
+	Mức độ đe dọa hiện tại là bao nhiêu?
+	Donut Chart (Tỷ lệ Fraud vs Legit)
+	Thiết lập bối cảnh về quy mô thiệt hại và mức độ nghiêm trọng của bài toán.
+	IsFraud, Total Case (cnay phải tạo thêm)
+	2
+	Kẻ gian tấn công chúng ta vào lúc nào?
+	Heatmap (Fraud Rate theo Giờ & Ngày)
+	Xác định "lỗ hổng thời gian" để điều phối nhân sự trực hệ thống giám sát hiệu quả hơn.
+	IsFraud, TransactionDT (đổi về giờ)
+	3
+	Công cụ ưa thích của chúng là gì?
+	Bar Chart (Fraud Rate theo DeviceType)
+	Nhận diện các thiết bị rủi ro cao (Mobile/Desktop) để thắt chặt quy trình xác thực (2FA).
+	IsFraud, DeviceType
+	4
+	Giá trị giao dịch nào đáng nghi ngờ nhất?
+	Histogram/Box Plot (Phân phối Amt_Log)
+	Phân loại gian lận là "thử thẻ" (số tiền nhỏ) hay "rút ruột" (số tiền lớn) để đặt hạn mức cảnh báo.
+	IsFraud, TransactionAmt (này phải đổi sang Catergories hoặc tạo các group)
+	5
+	Vùng địa lý và loại thẻ nào là "điểm nóng"?
+	Stacked Bar (Fraud Rate theo card4 & addr1)
+	Khoanh vùng rủi ro theo loại thẻ (Visa/Mastercard) và khu vực địa lý để có chính sách bảo mật riêng.
+	IsFraud, Card 4, Addr1
+	
+
+bo file test
+The Trade-off
+* Thiếu bước Dự báo (Inference): Trong một dự án Data Science hoàn chỉnh, file Test dùng để kiểm tra xem mô hình của Nhi "đoán" có đúng không trên dữ liệu mới. Nếu không dùng Test, Nhi sẽ thiếu đi phần "Dự báo tương lai" trên Dashboard.
+* Độ phủ của Pipeline: Ban giám khảo có thể hỏi: "Tại sao hệ thống không xử lý toàn bộ dữ liệu được cung cấp?".
+[a]AVG (is_fraud)
+
+
+Calculated field: SUM([is_fraud])/COUNT([is_fraud])
+[b]card 4: type of card: visa, discover, null,...
+
+
+card 6: debit, credit,...
+[c]purchase + Recipient
