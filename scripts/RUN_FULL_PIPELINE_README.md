@@ -77,19 +77,19 @@ cd /path/to/Lakehouse_Project/scripts
 
 ### Silver Layer (Cleaned)
 
-- `bronze_silver.silver_transactions` - Transactions đã làm sạch
-- `bronze_silver.silver_identity` - Identity đã làm sạch
+- `silver.silver_transactions` - Transactions đã làm sạch
+- `silver.silver_identity` - Identity đã làm sạch
 
 ### Gold Layer (Analytics)
 
-- `bronze_gold.fraud_by_card_type`
-- `bronze_gold.hourly_fraud_analysis`
-- `bronze_gold.fraud_by_product`
-- `bronze_gold.kpi_summary`
-- `bronze_gold.high_risk_transactions`
-- `bronze_gold.daily_transaction_summary`
-- `bronze_gold.fraud_by_day_of_week`
-- `bronze_gold.fraud_by_amount_category`
+- `gold.fraud_by_card_type`
+- `gold.hourly_fraud_analysis`
+- `gold.fraud_by_product`
+- `gold.kpi_summary`
+- `gold.high_risk_transactions`
+- `gold.daily_transaction_summary`
+- `gold.fraud_by_day_of_week`
+- `gold.fraud_by_amount_category`
 
 ### ClickHouse (Serving)
 

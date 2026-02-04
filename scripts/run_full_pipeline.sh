@@ -278,8 +278,8 @@ echo -e "${NC}"
 
 echo -e "${CYAN}📊 KẾT QUẢ:${NC}"
 echo "   ✅ Bronze Layer: Raw CSV → Iceberg tables (demo.bronze.*)"
-echo "   ✅ Silver Layer: Cleaned data (bronze_silver.*)"
-echo "   ✅ Gold Layer: Analytics tables (bronze_gold.*)"
+echo "   ✅ Silver Layer: Cleaned data (demo.silver.*)"
+echo "   ✅ Gold Layer: Analytics tables (demo.gold.*)"
 echo "   ✅ Serving Layer: ClickHouse tables (fraud_detection.*)"
 
 echo -e "\n${CYAN}🌐 TRUY CẬP:${NC}"

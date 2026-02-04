@@ -182,28 +182,28 @@ print("✅ Đã tạo tất cả tables trong ClickHouse!")
 print("\n📤 Copy dữ liệu từ Gold Layer sang ClickHouse...")
 
 # fraud_by_card_type
-df = spark.sql("SELECT * FROM bronze_gold.fraud_by_card_type")
+df = spark.sql("SELECT * FROM gold.fraud_by_card_type")
 insert_to_clickhouse(df, "fraud_by_card_type", 
     ["card_brand", "card_category", "total_transactions", "fraud_count", "legitimate_count",
      "fraud_rate_pct", "total_amount", "fraud_amount", "avg_transaction_amount", "avg_fraud_amount",
      "report_generated_at", "_dbt_run_id"])
 
 # hourly_fraud_analysis
-df = spark.sql("SELECT * FROM bronze_gold.hourly_fraud_analysis")
+df = spark.sql("SELECT * FROM gold.hourly_fraud_analysis")
 insert_to_clickhouse(df, "hourly_fraud_analysis",
     ["hour_of_day", "total_transactions", "fraud_count", "fraud_rate_pct", 
      "total_amount", "fraud_amount", "avg_amount", "high_value_transactions", 
      "time_period", "report_generated_at", "_dbt_run_id"])
 
 # fraud_by_product
-df = spark.sql("SELECT * FROM bronze_gold.fraud_by_product")
+df = spark.sql("SELECT * FROM gold.fraud_by_product")
 insert_to_clickhouse(df, "fraud_by_product",
     ["product_code", "total_transactions", "fraud_count", "fraud_rate_pct",
      "total_amount", "fraud_amount", "avg_amount", "min_amount", "max_amount",
      "high_value_count", "high_value_pct", "report_generated_at", "_dbt_run_id"])
 
 # kpi_summary
-df = spark.sql("SELECT * FROM bronze_gold.kpi_summary")
+df = spark.sql("SELECT * FROM gold.kpi_summary")
 insert_to_clickhouse(df, "kpi_summary",
     ["metric_category", "total_transactions", "total_fraud_count", "total_legitimate_count",
      "fraud_rate_pct", "total_transaction_amount", "total_fraud_amount", 
@@ -212,14 +212,14 @@ insert_to_clickhouse(df, "kpi_summary",
      "unique_products", "active_days", "report_generated_at", "_dbt_run_id"])
 
 # daily_transaction_summary
-df = spark.sql("SELECT * FROM bronze_gold.daily_transaction_summary")
+df = spark.sql("SELECT * FROM gold.daily_transaction_summary")
 insert_to_clickhouse(df, "daily_transaction_summary",
     ["transaction_day", "total_transactions", "fraud_count", "legitimate_count",
      "fraud_rate_pct", "total_amount", "fraud_amount", "avg_amount",
      "high_value_count", "unique_cards", "unique_products", "report_generated_at", "_dbt_run_id"])
 
 # high_risk_transactions (limit 10000)
-df = spark.sql("SELECT * FROM bronze_gold.high_risk_transactions LIMIT 10000")
+df = spark.sql("SELECT * FROM gold.high_risk_transactions LIMIT 10000")
 insert_to_clickhouse(df, "high_risk_transactions",
     ["TransactionID", "is_fraud", "transaction_amount", "transaction_hour", "transaction_day",
      "product_code", "card_brand", "card_category", "purchaser_email_domain",
@@ -228,7 +228,7 @@ insert_to_clickhouse(df, "high_risk_transactions",
 
 # fraud_by_day_of_week
 try:
-    df = spark.sql("SELECT * FROM bronze_gold.fraud_by_day_of_week")
+    df = spark.sql("SELECT * FROM gold.fraud_by_day_of_week")
     insert_to_clickhouse(df, "fraud_by_day_of_week",
         ["day_of_week", "day_of_week_name", "total_transactions", "fraud_count", "legitimate_count",
          "fraud_rate_pct", "total_amount", "fraud_amount", "avg_amount", "high_value_transactions",
@@ -238,7 +238,7 @@ except Exception as e:
 
 # fraud_by_amount_category
 try:
-    df = spark.sql("SELECT * FROM bronze_gold.fraud_by_amount_category")
+    df = spark.sql("SELECT * FROM gold.fraud_by_amount_category")
     insert_to_clickhouse(df, "fraud_by_amount_category",
         ["amount_category", "category_order", "total_transactions", "fraud_count", "legitimate_count",
          "fraud_rate_pct", "total_amount", "fraud_amount", "avg_amount", "min_amount", "max_amount",

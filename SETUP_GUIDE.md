@@ -1,4 +1,4 @@
-# 📖 HƯỚNG DẪN THIẾT LẬP CHI TIẾT
+# HƯỚNG DẪN THIẾT LẬP CHI TIẾT
 
 ## Lakehouse Project - Credit Card Fraud Detection
 
@@ -9,7 +9,7 @@ Tài liệu này hướng dẫn chi tiết **2 cách chạy** dự án Lakehouse
 
 ---
 
-## 📋 Mục Lục
+## Mục Lục
 
 1. [Yêu Cầu Hệ Thống](#1-yêu-cầu-hệ-thống)
 2. [Chuẩn Bị Data](#2-chuẩn-bị-data)
@@ -100,7 +100,7 @@ Data từ cuộc thi **IEEE-CIS Fraud Detection** trên Kaggle:
 
 ## 3. Cách 1: Full Pipeline Script
 
-### ⭐ Đây là cách nhanh nhất - chỉ cần 1 lệnh!
+### Đây là cách nhanh nhất - chỉ cần 1 lệnh!
 
 ### 3.1 Chạy Pipeline
 
@@ -134,7 +134,7 @@ Containers khởi động:
 
 #### Step 1: Bronze Layer (~2 phút)
 
-- Tạo namespaces: `demo.bronze`, `bronze_silver`, `bronze_gold`
+- Tạo namespaces: `demo.bronze`, `demo.silver`, `demo.gold`
 - Đọc CSV files từ `notebooks/data/`
 - Ingest vào Iceberg tables với metadata columns
 
@@ -153,18 +153,18 @@ Output:
 ```
 Output:
 ├── Silver Layer:
-│   ├── bronze_silver.silver_transactions
-│   └── bronze_silver.silver_identity
+│   ├── silver.silver_transactions
+│   └── silver.silver_identity
 │
 └── Gold Layer:
-    ├── bronze_gold.daily_transaction_summary
-    ├── bronze_gold.fraud_by_card_type
-    ├── bronze_gold.fraud_by_product
-    ├── bronze_gold.hourly_fraud_analysis
-    ├── bronze_gold.high_risk_transactions
-    ├── bronze_gold.kpi_summary
-    ├── bronze_gold.fraud_by_day_of_week
-    └── bronze_gold.fraud_by_amount_category
+    ├── gold.daily_transaction_summary
+    ├── gold.fraud_by_card_type
+    ├── gold.fraud_by_product
+    ├── gold.hourly_fraud_analysis
+    ├── gold.high_risk_transactions
+    ├── gold.kpi_summary
+    ├── gold.fraud_by_day_of_week
+    └── gold.fraud_by_amount_category
 ```
 
 #### Step 3: Serving Layer (~1 phút)
@@ -204,19 +204,19 @@ Output:
 
 ```
 ╔══════════════════════════════════════════════════════════════════════╗
-║                    🎉 PIPELINE HOÀN TẤT!                             ║
+║                       PIPELINE HOÀN TẤT!                             ║
 ╚══════════════════════════════════════════════════════════════════════╝
-📊 KẾT QUẢ:
-   ✅ Bronze Layer: Raw CSV → Iceberg tables (demo.bronze.*)
-   ✅ Silver Layer: Cleaned data (bronze_silver.*)
-   ✅ Gold Layer: Analytics tables (bronze_gold.*)
-   ✅ Serving Layer: ClickHouse tables (fraud_detection.*)
+ KẾT QUẢ:
+    Bronze Layer: Raw CSV → Iceberg tables (demo.bronze.*)
+    Silver Layer: Cleaned data (demo.silver.*)
+    Gold Layer: Analytics tables (demo.gold.*)
+    Serving Layer: ClickHouse tables (fraud_detection.*)
 
-🌐 TRUY CẬP:
-   📊 Superset Dashboard: http://localhost:8088 (admin/admin)
-   📁 MinIO Console:     http://localhost:9001 (admin/password123)
-   💻 Jupyter:           http://localhost:8888
-   🗄️  ClickHouse:        http://localhost:8123
+ TRUY CẬP:
+    Superset Dashboard: http://localhost:8088 (admin/admin)
+    MinIO Console:     http://localhost:9001 (admin/password123)
+    Jupyter:           http://localhost:8888
+    ClickHouse:        http://localhost:8123
 ```
 
 ### 3.4 Truy cập Dashboard
@@ -229,7 +229,7 @@ Output:
 
 ## 4. Cách 2: Jupyter Notebooks
 
-### ⭐ Cách này phù hợp để học và khám phá từng bước
+### Cách này phù hợp để học và khám phá từng bước
 
 ### 4.1 Khởi động hệ thống
 
@@ -331,7 +331,7 @@ demo.silver.silver_transactions → Cleaned transaction data
 demo.silver.silver_identity     → Cleaned identity data
 ```
 
-> 💡 **Thay thế**: Có thể dùng `dbt run` thay cho notebook này
+> **Thay thế**: Có thể dùng `dbt run` thay cho notebook này
 
 ---
 
@@ -375,7 +375,7 @@ demo.gold.high_risk_transactions    → Giao dịch rủi ro cao
 demo.gold.kpi_summary               → Tổng hợp KPIs
 ```
 
-> 💡 **Thay thế**: Có thể dùng `dbt run` thay cho notebook này
+> **Thay thế**: Có thể dùng `dbt run` thay cho notebook này
 
 ---
 
@@ -435,7 +435,7 @@ fraud_detection.high_risk_transactions    → 10,000 rows
 
 ## 5. Iceberg Time Travel Demo
 
-### 📓 Notebook 5: Time Travel (`05_time_travel_demo.ipynb`)
+### Notebook 5: Time Travel (`05_time_travel_demo.ipynb`)
 
 **Mục đích**: Trực quan hóa tính năng **Time Travel** độc đáo của Apache Iceberg
 
@@ -627,7 +627,7 @@ docker compose down
 
 ### 7.3 Dừng và xóa toàn bộ (bao gồm data)
 
-⚠️ **Cảnh báo**: Lệnh này sẽ xóa tất cả dữ liệu!
+**Cảnh báo**: Lệnh này sẽ xóa tất cả dữ liệu!
 
 ```bash
 docker compose down -v
@@ -771,7 +771,7 @@ docker system prune -a
 
 ---
 
-## 📞 Hỗ Trợ
+## Hỗ Trợ
 
 Nếu gặp vấn đề không giải quyết được, hãy:
 
@@ -781,7 +781,7 @@ Nếu gặp vấn đề không giải quyết được, hãy:
 
 ---
 
-## ✅ Checklist Hoàn Thành
+## Checklist Hoàn Thành
 
 - [ ] Docker đang chạy
 - [ ] Data files có trong `notebooks/data/`
@@ -789,4 +789,4 @@ Nếu gặp vấn đề không giải quyết được, hãy:
 - [ ] Truy cập Superset Dashboard thành công
 - [ ] Thử nghiệm Time Travel với Notebook 5
 
-**🎉 Chúc mừng! Bạn đã thiết lập thành công Lakehouse Platform!**
+**Chúc mừng! Bạn đã thiết lập thành công Lakehouse Platform!**

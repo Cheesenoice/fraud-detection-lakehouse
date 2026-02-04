@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-Script tạo các namespaces cần thiết cho dbt
+Script tạo các namespaces cần thiết cho Lakehouse Architecture
+Kiến trúc Medallion: bronze, silver, gold riêng biệt
 """
 from pyspark.sql import SparkSession
 
 print("=" * 60)
-print("Creating Iceberg Namespaces")
+print("Creating Iceberg Namespaces (Medallion Architecture)")
 print("=" * 60)
 
 spark = SparkSession.builder \
@@ -19,8 +20,8 @@ spark = SparkSession.builder \
     .config("spark.sql.defaultCatalog", "demo") \
     .getOrCreate()
 
-# Create namespaces
-namespaces = ["default", "bronze", "bronze_silver", "bronze_gold"]
+# Create namespaces - Medallion Architecture (riêng biệt)
+namespaces = ["default", "bronze", "silver", "gold"]
 for ns in namespaces:
     try:
         spark.sql(f"CREATE NAMESPACE IF NOT EXISTS {ns}")

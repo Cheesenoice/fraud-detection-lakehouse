@@ -1,4 +1,4 @@
-# 🏠 FULLSTACK OPEN-SOURCE LAKEHOUSE PLATFORM
+# FULLSTACK OPEN-SOURCE LAKEHOUSE PLATFORM
 
 ## Credit Card Fraud Detection - IEEE-CIS Dataset
 
@@ -6,9 +6,9 @@ Dự án xây dựng hệ thống **Data Lakehouse** hoàn chỉnh sử dụng c
 
 ---
 
-## ⚡ QUICK START - 2 CÁCH CHẠY
+## QUICK START - 2 CÁCH CHẠY
 
-### 🚀 Cách 1: ONE COMMAND (Khuyến nghị - Tự động hóa hoàn toàn)
+### Cách 1: ONE COMMAND (Khuyến nghị - Tự động hóa hoàn toàn)
 
 ```bash
 # Chạy toàn bộ pipeline chỉ với 1 lệnh
@@ -36,11 +36,11 @@ Dự án xây dựng hệ thống **Data Lakehouse** hoàn chỉnh sử dụng c
 # 5. Chạy 05_time_travel_demo.ipynb
 ```
 
-📖 **Xem hướng dẫn chi tiết**: [SETUP_GUIDE.md](SETUP_GUIDE.md)
+**Xem hướng dẫn chi tiết**: [SETUP_GUIDE.md](SETUP_GUIDE.md)
 
 ---
 
-## 📋 Mục Lục
+## Mục Lục
 
 1. [Yêu Cầu Hệ Thống](#-yêu-cầu-hệ-thống)
 2. [Kiến Trúc Hệ Thống](#-kiến-trúc-hệ-thống)
@@ -53,7 +53,7 @@ Dự án xây dựng hệ thống **Data Lakehouse** hoàn chỉnh sử dụng c
 
 ---
 
-## 💻 Yêu Cầu Hệ Thống
+## Yêu Cầu Hệ Thống
 
 ### Phần cứng tối thiểu
 
@@ -78,7 +78,7 @@ docker compose version  # Docker Compose version v2.x+
 
 ---
 
-## 🏗 Kiến Trúc Hệ Thống
+## Kiến Trúc Hệ Thống
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -137,7 +137,7 @@ docker compose version  # Docker Compose version v2.x+
 
 ---
 
-## 🚀 Cách 1: Full Pipeline Script
+## Cách 1: Full Pipeline Script
 
 ### Yêu cầu trước khi chạy
 
@@ -173,24 +173,24 @@ cd /path/to/Lakehouse_Project
 
 ```
 ╔══════════════════════════════════════════════════════════════════════╗
-║                    🎉 PIPELINE HOÀN TẤT!                             ║
+║                       PIPELINE HOÀN TẤT!                             ║
 ╚══════════════════════════════════════════════════════════════════════╝
-📊 KẾT QUẢ:
-   ✅ Bronze Layer: Raw CSV → Iceberg tables (demo.bronze.*)
-   ✅ Silver Layer: Cleaned data (bronze_silver.*)
-   ✅ Gold Layer: Analytics tables (bronze_gold.*)
-   ✅ Serving Layer: ClickHouse tables (fraud_detection.*)
+ KẾT QUẢ:
+    Bronze Layer: Raw CSV → Iceberg tables (demo.bronze.*)
+    Silver Layer: Cleaned data (demo.silver.*)
+    Gold Layer: Analytics tables (demo.gold.*)
+    Serving Layer: ClickHouse tables (fraud_detection.*)
 
-🌐 TRUY CẬP:
-   📊 Superset Dashboard: http://localhost:8088 (admin/admin)
-   📁 MinIO Console:     http://localhost:9001 (admin/password123)
-   💻 Jupyter:           http://localhost:8888
-   🗄️  ClickHouse:        http://localhost:8123
+ TRUY CẬP:
+    Superset Dashboard: http://localhost:8088 (admin/admin)
+    MinIO Console:     http://localhost:9001 (admin/password123)
+    Jupyter:           http://localhost:8888
+     ClickHouse:        http://localhost:8123
 ```
 
 ---
 
-## 📓 Cách 2: Jupyter Notebooks
+## Cách 2: Jupyter Notebooks
 
 Phương pháp này cho phép bạn **học và khám phá** từng bước của pipeline một cách trực quan.
 
@@ -209,7 +209,7 @@ Truy cập: **http://localhost:8888**
 
 ### Bước 3: Chạy các Notebooks theo thứ tự
 
-#### 📥 Notebook 1: Bronze Layer (`01_bronze_layer.ipynb`)
+#### Notebook 1: Bronze Layer (`01_bronze_layer.ipynb`)
 
 **Mục đích**: Ingest dữ liệu thô từ CSV vào Iceberg tables
 
@@ -229,7 +229,7 @@ demo.bronze.identity     → 144,233 records
 
 ---
 
-#### 🔄 Notebook 2: Silver Layer (`02_silver_layer.ipynb`)
+#### Notebook 2: Silver Layer (`02_silver_layer.ipynb`)
 
 **Mục đích**: Làm sạch và chuẩn hóa dữ liệu
 
@@ -247,11 +247,11 @@ demo.silver.silver_transactions → Cleaned transaction data
 demo.silver.silver_identity     → Cleaned identity data
 ```
 
-> 💡 **Lưu ý**: Notebook này có thể được thay thế bằng `dbt run` với models trong `dbt_project/models/silver/`
+> **Lưu ý**: Notebook này có thể được thay thế bằng `dbt run` với models trong `dbt_project/models/silver/`
 
 ---
 
-#### 📊 Notebook 3: Gold Layer (`03_gold_layer.ipynb`)
+#### Notebook 3: Gold Layer (`03_gold_layer.ipynb`)
 
 **Mục đích**: Tạo các bảng phân tích và aggregations
 
@@ -273,11 +273,11 @@ demo.gold.high_risk_transactions    → Giao dịch rủi ro cao
 demo.gold.kpi_summary               → Tổng hợp KPIs
 ```
 
-> 💡 **Lưu ý**: Notebook này có thể được thay thế bằng `dbt run` với models trong `dbt_project/models/gold/`
+> **Lưu ý**: Notebook này có thể được thay thế bằng `dbt run` với models trong `dbt_project/models/gold/`
 
 ---
 
-#### 📤 Notebook 4: Serving Layer (`04_serving_layer.ipynb`)
+#### Notebook 4: Serving Layer (`04_serving_layer.ipynb`)
 
 **Mục đích**: Copy dữ liệu Gold sang ClickHouse để phục vụ Dashboard
 
@@ -318,7 +318,7 @@ fraud_detection.fraud_by_amount_category  → 6 rows
 
 ---
 
-## ⏰ Iceberg Time Travel Demo
+## Iceberg Time Travel Demo
 
 ### Notebook 5: Time Travel (`05_time_travel_demo.ipynb`)
 
@@ -369,14 +369,14 @@ new_data = spark.read.option("snapshot-id", new_snapshot).table("demo.bronze.tra
 
 **Các trường hợp sử dụng Time Travel**:
 
-- 🔄 **Data Recovery**: Khôi phục dữ liệu sau khi xóa nhầm
-- 📊 **Audit**: Xem dữ liệu tại thời điểm cụ thể
-- 🧪 **Testing**: So sánh kết quả giữa các versions
-- 📈 **Analytics**: Phân tích xu hướng thay đổi theo thời gian
+- **Data Recovery**: Khôi phục dữ liệu sau khi xóa nhầm
+- **Audit**: Xem dữ liệu tại thời điểm cụ thể
+- **Testing**: So sánh kết quả giữa các versions
+- **Analytics**: Phân tích xu hướng thay đổi theo thời gian
 
 ---
 
-## 🌐 Truy Cập Services
+## Truy Cập Services
 
 | Service           | URL                   | Credentials             | Mô tả              |
 | ----------------- | --------------------- | ----------------------- | ------------------ |
@@ -389,33 +389,33 @@ new_data = spark.read.option("snapshot-id", new_snapshot).table("demo.bronze.tra
 
 ---
 
-## 📁 Cấu Trúc Thư Mục
+## Cấu Trúc Thư Mục
 
 ```
 Lakehouse_Project/
-├── 📄 docker-compose.yml       # Docker services configuration
-├── 📄 README.md                # Tài liệu chính (file này)
-├── 📄 SETUP_GUIDE.md           # Hướng dẫn chi tiết
+├──  docker-compose.yml       # Docker services configuration
+├──  README.md                # Tài liệu chính (file này)
+├──  SETUP_GUIDE.md           # Hướng dẫn chi tiết
 │
-├── 📂 notebooks/               # Jupyter Notebooks
+├──  notebooks/               # Jupyter Notebooks
 │   ├── 01_bronze_layer.ipynb   # Ingestion raw data
 │   ├── 02_silver_layer.ipynb   # Data cleaning
 │   ├── 03_gold_layer.ipynb     # Aggregations
 │   ├── 04_serving_layer.ipynb  # Copy to ClickHouse
 │   ├── 05_time_travel_demo.ipynb # Iceberg Time Travel
-│   └── 📂 data/                # CSV data files
+│   └──  data/                # CSV data files
 │       ├── train_transaction.csv
 │       └── train_identity.csv
 │
-├── 📂 dbt_project/             # dbt transformation
+├──  dbt_project/             # dbt transformation
 │   ├── dbt_project.yml
 │   ├── profiles.yml
-│   └── 📂 models/
-│       ├── 📂 silver/          # Silver layer models
+│   └──  models/
+│       ├──  silver/          # Silver layer models
 │       │   ├── silver_transactions.sql
 │       │   ├── silver_identity.sql
 │       │   └── schema.yml
-│       └── 📂 gold/            # Gold layer models
+│       └──  gold/            # Gold layer models
 │           ├── daily_transaction_summary.sql
 │           ├── fraud_by_card_type.sql
 │           ├── fraud_by_product.sql
@@ -424,8 +424,8 @@ Lakehouse_Project/
 │           ├── kpi_summary.sql
 │           └── schema.yml
 │
-├── 📂 scripts/                 # Utility scripts
-│   ├── run_full_pipeline.sh    # ⭐ Full automation script
+├──  scripts/                 # Utility scripts
+│   ├── run_full_pipeline.sh    #  Full automation script
 │   ├── start_lakehouse.sh      # Start Docker + Thrift Server
 │   ├── stop_lakehouse.sh       # Stop all services
 │   ├── run_dbt.sh              # Run dbt commands
@@ -434,13 +434,13 @@ Lakehouse_Project/
 │   ├── setup_superset.py       # Superset auto-setup
 │   └── create_namespaces.py    # Create Iceberg namespaces
 │
-└── 📂 markdown/                # Additional documentation
+└──  markdown/                # Additional documentation
     └── 06_COMPLETE_USER_GUIDE_1.md
 ```
 
 ---
 
-## 🔧 Xử Lý Lỗi Thường Gặp
+## Xử Lý Lỗi Thường Gặp
 
 ### 1. Docker không chạy
 
@@ -506,7 +506,7 @@ docker compose down -v
 
 ---
 
-## 📚 Tài Liệu Bổ Sung
+## Tài Liệu Bổ Sung
 
 - [SETUP_GUIDE.md](SETUP_GUIDE.md) - Hướng dẫn chi tiết từng bước
 - [dbt_project/README.md](dbt_project/README.md) - dbt documentation
@@ -514,12 +514,12 @@ docker compose down -v
 
 ---
 
-## 👨‍💻 Author
+## Author
 
 Dự án được xây dựng để demo kiến trúc **Data Lakehouse** sử dụng hoàn toàn công nghệ **Open Source**.
 
 ---
 
-## 📄 License
+## License
 
 MIT License - Sử dụng tự do cho mục đích học tập và nghiên cứu.

@@ -14,7 +14,7 @@ fraud_detection:
       host: spark-iceberg
       port: 10000
       user: hive
-      schema: bronze
+      schema: default
       connect_retries: 5
       connect_timeout: 120
 
@@ -24,6 +24,6 @@ fraud_detection:
       host: spark-iceberg
       port: 10000
       user: hive
-      schema: bronze
+      schema: default
       connect_retries: 5
       connect_timeout: 120
