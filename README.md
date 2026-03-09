@@ -6,6 +6,20 @@ Dự án xây dựng hệ thống **Data Lakehouse** hoàn chỉnh sử dụng c
 
 ---
 
+## DEMO VIDEO + REPORT + THÀNH TÍCH
+
+### Video Demo YouTube
+
+- Video Youtube demo toàn bộ hệ thống: https://youtu.be/EgT8e-iyamY
+
+### Tài liệu & minh chứng
+
+- Full report: [link report](https://drive.google.com/file/d/18bJnAQuuIVRhmkpPU1UAl8eTy4BETjKW/view?usp=sharing)
+- Slide thuyết trình: [link slide](https://drive.google.com/file/d/1hWDCTY-EJjPyTfa0sNK7GCGjlZe3JlpT/view?usp=sharing)
+- Facebook (minh chứng dự án đạt Top 10): https://www.facebook.com/share/p/1EdAeNJfm5/
+
+---
+
 ## QUICK START - 2 CÁCH CHẠY
 
 ### Cách 1: ONE COMMAND (Khuyến nghị - Tự động hóa hoàn toàn)
@@ -42,14 +56,15 @@ Dự án xây dựng hệ thống **Data Lakehouse** hoàn chỉnh sử dụng c
 
 ## Mục Lục
 
-1. [Yêu Cầu Hệ Thống](#-yêu-cầu-hệ-thống)
-2. [Kiến Trúc Hệ Thống](#-kiến-trúc-hệ-thống)
-3. [Cách 1: Full Pipeline Script](#-cách-1-full-pipeline-script)
-4. [Cách 2: Jupyter Notebooks](#-cách-2-jupyter-notebooks)
-5. [Iceberg Time Travel Demo](#-iceberg-time-travel-demo)
-6. [Truy Cập Services](#-truy-cập-services)
-7. [Cấu Trúc Thư Mục](#-cấu-trúc-thư-mục)
-8. [Xử Lý Lỗi](#-xử-lý-lỗi-thường-gặp)
+1. [Demo Video + Report + Thành Tích](#-demo-video--report--thành-tích)
+2. [Yêu Cầu Hệ Thống](#-yêu-cầu-hệ-thống)
+3. [Kiến Trúc Hệ Thống](#-kiến-trúc-hệ-thống)
+4. [Cách 1: Full Pipeline Script](#-cách-1-full-pipeline-script)
+5. [Cách 2: Jupyter Notebooks](#-cách-2-jupyter-notebooks)
+6. [Iceberg Time Travel Demo](#-iceberg-time-travel-demo)
+7. [Truy Cập Services](#-truy-cập-services)
+8. [Cấu Trúc Thư Mục](#-cấu-trúc-thư-mục)
+9. [Xử Lý Lỗi](#-xử-lý-lỗi-thường-gặp)
 
 ---
 
@@ -80,48 +95,21 @@ docker compose version  # Docker Compose version v2.x+
 
 ## Kiến Trúc Hệ Thống
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         LAKEHOUSE ARCHITECTURE                               │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│   ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐   │
-│   │  MinIO  │───▶│  Spark  │───▶│   dbt   │───▶│ClickHouse───▶│Superset │   │
-│   │(Storage)│    │(Compute)│    │(Transform)   │(Serving)│    │(Visual) │   │
-│   └─────────┘    └─────────┘    └─────────┘    └─────────┘    └─────────┘   │
-│        │              │              │              │              │         │
-│        └──────────────┴──────────────┴──────────────┴──────────────┘         │
-│                                    │                                         │
-│                     ┌──────────────┴──────────────┐                          │
-│                     │     Apache Iceberg          │                          │
-│                     │     (Table Format)          │                          │
-│                     └─────────────────────────────┘                          │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+![Lakehouse Architecture](github-assets/images/architecture.png)
 
-                           MEDALLION ARCHITECTURE
+_Hình: Kiến trúc tổng thể pipeline từ nguồn dữ liệu đến tầng Serving và Dashboard._
 
-    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-    │     BRONZE      │───▶│     SILVER      │───▶│      GOLD       │
-    │   (Raw Data)    │    │   (Cleaned)     │    │  (Aggregated)   │
-    │                 │    │                 │    │                 │
-    │ • transactions  │    │ • silver_trans  │    │ • fraud_by_card │
-    │ • identity      │    │ • silver_ident  │    │ • hourly_fraud  │
-    │                 │    │                 │    │ • daily_summary │
-    │                 │    │                 │    │ • kpi_summary   │
-    └─────────────────┘    └─────────────────┘    └─────────────────┘
-            │                      │                      │
-            │                      │                      │
-            └──────────────────────┴──────────────────────┘
-                                   │
-                        ┌──────────▼──────────┐
-                        │    SERVING LAYER    │
-                        │    (ClickHouse)     │
-                        │                     │
-                        │  • Fast OLAP queries│
-                        │  • Dashboard ready  │
-                        └─────────────────────┘
-```
+### Bên trong Apache Iceberg Table
+
+![Apache Iceberg Table](github-assets/images/apache_iceberg_table.png)
+
+_Hình: Minh họa các thành phần chính của table Iceberg: partitioning, schema evolution và snapshot timeline (kèm rollback)._
+
+### Vai trò và Use Cases
+
+![Use Case Diagram](github-assets/images/usecase_diagram.png)
+
+_Hình: Các vai trò chính trong hệ thống gồm Data Engineer, Data Analyst và Auditor._
 
 ### Công nghệ sử dụng
 
@@ -213,6 +201,10 @@ Truy cập: **http://localhost:8888**
 
 **Mục đích**: Ingest dữ liệu thô từ CSV vào Iceberg tables
 
+![Bronze Notebook Mapping](github-assets/images/bronze_layer.png)
+
+_Sơ đồ này tương ứng trực tiếp với logic trong notebook `01_bronze_layer.ipynb`._
+
 **Nội dung**:
 
 - Khởi tạo Spark Session với Iceberg
@@ -232,6 +224,10 @@ demo.bronze.identity     → 144,233 records
 #### Notebook 2: Silver Layer (`02_silver_layer.ipynb`)
 
 **Mục đích**: Làm sạch và chuẩn hóa dữ liệu
+
+![Silver Layer Flow](github-assets/images/silver_layer.png)
+
+_Sơ đồ thể hiện mapping từ nguồn Bronze (`bronze_transactions`, `bronze_identity`) sang hai model Silver tương ứng._
 
 **Nội dung**:
 
@@ -254,6 +250,10 @@ demo.silver.silver_identity     → Cleaned identity data
 #### Notebook 3: Gold Layer (`03_gold_layer.ipynb`)
 
 **Mục đích**: Tạo các bảng phân tích và aggregations
+
+![dbt Dependency Graph](github-assets/images/dbt_dependency.png)
+
+_Sơ đồ phụ thuộc dbt: nguồn Bronze -> model Silver -> các model Gold dùng cho reporting._
 
 **Nội dung**:
 
@@ -324,48 +324,16 @@ fraud_detection.fraud_by_amount_category  → 6 rows
 
 **Mục đích**: Trực quan hóa tính năng **Time Travel** của Apache Iceberg
 
-**Tính năng demo**:
+![Iceberg Time Travel Flow](github-assets/images/time_travel.png)
 
-#### 1. Query Historical Data
+_Flow Time Travel phục vụ audit: truy vấn theo timestamp hoặc version ID, đọc metadata snapshot cũ, sau đó trả về dữ liệu lịch sử chính xác._
 
-```sql
--- Xem dữ liệu tại snapshot cụ thể
-SELECT * FROM demo.bronze.transactions VERSION AS OF <snapshot_id>
-```
+**Các thao tác chính trong notebook**:
 
-#### 2. View Table History
-
-```sql
--- Xem lịch sử thay đổi của table
-SELECT * FROM demo.bronze.transactions.history
-```
-
-#### 3. View Snapshots
-
-```sql
--- Xem danh sách snapshots
-SELECT * FROM demo.bronze.transactions.snapshots
-```
-
-#### 4. Rollback Table
-
-```python
-# Rollback về snapshot trước đó
-spark.sql(f"""
-    CALL demo.system.rollback_to_snapshot(
-        'demo.bronze.transactions',
-        {snapshot_id}
-    )
-""")
-```
-
-#### 5. Compare Snapshots
-
-```python
-# So sánh 2 snapshots
-old_data = spark.read.option("snapshot-id", old_snapshot).table("demo.bronze.transactions")
-new_data = spark.read.option("snapshot-id", new_snapshot).table("demo.bronze.transactions")
-```
+- Query dữ liệu theo thời điểm: `TIMESTAMP AS OF`
+- Query dữ liệu theo version/snapshot: `VERSION AS OF`
+- Xem lịch sử snapshots và metadata để audit
+- Rollback table về snapshot mong muốn khi cần khôi phục
 
 **Các trường hợp sử dụng Time Travel**:
 
@@ -424,18 +392,15 @@ Lakehouse_Project/
 │           ├── kpi_summary.sql
 │           └── schema.yml
 │
-├──  scripts/                 # Utility scripts
-│   ├── run_full_pipeline.sh    #  Full automation script
-│   ├── start_lakehouse.sh      # Start Docker + Thrift Server
-│   ├── stop_lakehouse.sh       # Stop all services
-│   ├── run_dbt.sh              # Run dbt commands
-│   ├── bronze_layer.py         # Bronze ingestion script
-│   ├── serving_layer.py        # Serving layer script
-│   ├── setup_superset.py       # Superset auto-setup
-│   └── create_namespaces.py    # Create Iceberg namespaces
-│
-└──  markdown/                # Additional documentation
-    └── 06_COMPLETE_USER_GUIDE_1.md
+└──  scripts/                 # Utility scripts
+    ├── run_full_pipeline.sh    #  Full automation script
+    ├── start_lakehouse.sh      # Start Docker + Thrift Server
+    ├── stop_lakehouse.sh       # Stop all services
+    ├── run_dbt.sh              # Run dbt commands
+    ├── bronze_layer.py         # Bronze ingestion script
+    ├── serving_layer.py        # Serving layer script
+    ├── setup_superset.py       # Superset auto-setup
+    └── create_namespaces.py    # Create Iceberg namespaces
 ```
 
 ---
@@ -510,7 +475,7 @@ docker compose down -v
 
 - [SETUP_GUIDE.md](SETUP_GUIDE.md) - Hướng dẫn chi tiết từng bước
 - [dbt_project/README.md](dbt_project/README.md) - dbt documentation
-- [markdown/](markdown/) - Các tài liệu khác
+- [github-assets/markdown/](github-assets/markdown/) - Các tài liệu khác
 
 ---
 
